@@ -5,13 +5,14 @@ import plotly.express as px # for data visualization
 
 dff=pd.read_csv('netflix_titles.csv')
 dff.shape
-
+##### Distribution of Rating #####
 z = dff.groupby(['rating']).size().reset_index(name='counts')
 pieChart = px.pie(z, values='counts', names='rating', 
                   title='Distribution of Content Ratings on Netflix',
                   color_discrete_sequence=px.colors.qualitative.Set3)
 pieChart.show()
 
+##### TOP 5 Directors ##### 
 dff['director']=dff['director'].fillna('No Director Specified')
 filtered_directors=pd.DataFrame()
 filtered_directors=dff['director'].str.split(',',expand=True).stack()
@@ -25,7 +26,7 @@ directorsTop5=directorsTop5.sort_values(by=['Total Content'])
 fig1=px.bar(directorsTop5,x='Total Content',y='Director',title='Top 5 Directors on Netflix')
 fig1.show()
 
-
+##### TOP 5 Cast #####
 dff['cast']=dff['cast'].fillna('No Cast Specified')
 filtered_cast=pd.DataFrame()
 filtered_cast=dff['cast'].str.split(',',expand=True).stack()
@@ -39,7 +40,22 @@ actorsTop5=actorsTop5.sort_values(by=['Total Content'])
 fig2=px.bar(actorsTop5,x='Total Content',y='Actor', title='Top 5 Actors on Netflix')
 fig2.show()
 
+##### TOP 10 Countries #####
+dff['country']=dff['country'].fillna('No country Specified')
+filtered_country=pd.DataFrame()
+filtered_country=dff['country'].str.split(',',expand=True).stack()
+filtered_country=filtered_country.to_frame()
+filtered_country.columns=['Country']
+countries=filtered_country.groupby(['Country']).size().reset_index(name='Total Content')
+countries=countries[countries.Actor !='No Cast Specified']
+countries=countries.sort_values(by=['Total Content'],ascending=False)
+countriesTop10=countries.head(10)
+countriesTop10=countriesTop10.sort_values(by=['Total Content'])
+fig2=px.bar(countriesTop10,x='Total Content',y='Country', title='Top 10 Countries on Netflix')
+fig2.show()
 
+
+##### Trend of production over the years on Netflix #####
 df1=dff[['type','release_year']]
 df1=df1.rename(columns={"release_year": "Release Year"})
 df2=df1.groupby(['Release Year','type']).size().reset_index(name='Total Content')
